@@ -1,9 +1,11 @@
-package orion
+package example
 
 import (
 	"errors"
-	"github.com/matryer/is"
 	"testing"
+
+	"github.com/lovromazgon/orion"
+	"github.com/matryer/is"
 )
 
 type InMemoryDB struct {
@@ -34,7 +36,7 @@ func (db *InMemoryDB) Delete(key string) error {
 
 func TestSimple(t *testing.T) {
 	is := is.New(t)
-	db := NewDatabaseWithContract(NewInMemoryDB(), TestBreachHandler(t))
+	db := NewDatabaseWithContract(NewInMemoryDB(), orion.TestBreachHandler(t))
 	err := db.Set("a", "foo")
 	is.NoErr(err)
 	val, err := db.Get("a")

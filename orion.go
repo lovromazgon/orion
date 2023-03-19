@@ -11,6 +11,8 @@ import (
 	"testing"
 )
 
+var NoBreach Breach
+
 type O struct {
 	breaches []Breach
 	handler  BreachHandler
@@ -22,22 +24,20 @@ func New(handler BreachHandler) *O {
 	}
 }
 
-func (o *O) NewBreach(err error) {
-	pc, file, line, ok := runtime.Caller(1)
-	if !ok {
-		panic("whoops")
-	}
-	f := runtime.FuncForPC(pc)
-	b := Breach{
-		Err:  err,
-		F:    f,
-		File: file,
-		Line: line,
-	}
+func (o *O) AddBreach(b Breach) {
 	o.breaches = append(o.breaches, b)
 	if o.handler != nil {
 		o.handler(b)
 	}
+}
+
+func (o *O) Breaches() []Breach {
+	if len(o.breaches) == 0 {
+		return nil
+	}
+	breachesCopy := make([]Breach, len(o.breaches))
+	copy(breachesCopy, o.breaches)
+	return breachesCopy
 }
 
 type Breach struct {
@@ -45,6 +45,20 @@ type Breach struct {
 	F    *runtime.Func
 	File string
 	Line int
+}
+
+func NewBreach(err error) Breach {
+	pc, file, line, ok := runtime.Caller(1)
+	if !ok {
+		panic("whoops")
+	}
+	f := runtime.FuncForPC(pc)
+	return Breach{
+		Err:  err,
+		F:    f,
+		File: file,
+		Line: line,
+	}
 }
 
 type BreachHandler func(breach Breach)
