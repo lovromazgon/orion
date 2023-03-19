@@ -17,8 +17,6 @@ type Database interface {
 
 type contract struct {
 	db Database
-
-	deleteErr error
 }
 
 func newContract(db Database) *contract {
@@ -33,12 +31,6 @@ func (c *contract) AfterSet(key, value string) orion.Breach {
 	if val != value {
 		return orion.NewBreach(fmt.Errorf("expected %q, got %q", value, val))
 	}
-	return orion.NoBreach
-}
-
-func (c *contract) BeforeDelete(key string) orion.Breach {
-	_, err := c.db.Get(key)
-	c.deleteErr = err
 	return orion.NoBreach
 }
 
